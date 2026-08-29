@@ -60,6 +60,20 @@ public class ClienteTests
         Assert.Equal("12345678909", cliente.Cpf);
     }
 
+    [Theory]
+    [InlineData("joao")]
+    [InlineData("joao@")]
+    [InlineData("joao@localhost")]
+    public void DeveRecusarEmailInvalido(string email)
+    {
+        // Arrange, Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            new Cliente("João da Silva", "12345678909", email, new DateTime(1995, 5, 10)));
+
+        Assert.Equal("email", ex.ParamName);
+        Assert.StartsWith("E-mail inválido.", ex.Message);
+    }
+
     private static Cliente CriarCom(string cpf) =>
         new("João da Silva", cpf, "joao@email.com", new DateTime(1995, 5, 10));
 }
