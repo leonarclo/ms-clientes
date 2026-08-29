@@ -29,6 +29,9 @@ public class Cliente
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("E-mail é obrigatório.", nameof(email));
 
+        if (!EmailValidator.IsValid(email))
+            throw new ArgumentException("E-mail inválido.", nameof(email));
+
         Id = Guid.NewGuid();
         Nome = nome.Trim();
         Cpf = CpfValidator.Normalizar(cpf);
