@@ -2,7 +2,7 @@ using Clientes.Domain.Services;
 
 namespace Clientes.Domain.Entities;
 
-public class Cliente
+public sealed class Cliente
 {
     public Guid Id { get; private set; }
     public string Nome { get; private set; }
