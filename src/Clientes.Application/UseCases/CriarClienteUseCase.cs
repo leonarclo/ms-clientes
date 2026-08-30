@@ -12,10 +12,12 @@ public sealed class CriarClienteUseCase(IClienteRepository repositorio)
         CancellationToken cancellationToken = default)
     {
         var cliente = new Cliente(
+            Guid.NewGuid(),
             request.Nome,
             request.Cpf,
             request.Email,
-            request.DataNascimento);
+            request.DataNascimento,
+            DateTime.UtcNow);
 
         if (await repositorio.ExisteCpfAsync(cliente.Cpf, cancellationToken))
             throw new CpfJaCadastradoException(cliente.Cpf);

@@ -12,11 +12,16 @@ public sealed class Cliente
     public DateTime DataCadastro { get; private set; }
 
     public Cliente(
+        Guid id,
         string nome,
         string cpf,
         string email,
-        DateTime dataNascimento)
+        DateTime dataNascimento,
+        DateTime dataCadastro)
     {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Id é obrigatório.", nameof(id));
+
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome é obrigatório.", nameof(nome));
 
@@ -32,11 +37,11 @@ public sealed class Cliente
         if (!EmailValidator.IsValid(email))
             throw new ArgumentException("E-mail inválido.", nameof(email));
 
-        Id = Guid.NewGuid();
+        Id = id;
         Nome = nome.Trim();
         Cpf = CpfValidator.Normalizar(cpf);
         Email = email.Trim();
         DataNascimento = dataNascimento;
-        DataCadastro = DateTime.UtcNow;
+        DataCadastro = dataCadastro;
     }
 }

@@ -4,21 +4,34 @@ namespace Clientes.UnitTests.Entities;
 
 public class ClienteTests
 {
+    private static readonly DateTime Nascimento = new(1995, 5, 10);
+    private static readonly DateTime Cadastro = new(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc);
+
     [Fact]
     public void DeveCriarClienteComDadosValidos()
     {
-        var nome = "João da Silva";
-        var cpf = "12345678909";
-        var email = "joao@email.com";
-        var dataNascimento = new DateTime(1995, 5, 10);
+        // Arrange
+        var id = Guid.NewGuid();
 
-        var cliente = new Cliente(nome, cpf, email, dataNascimento);
+        // Act
+        var cliente = new Cliente(
+            id, "João da Silva", "12345678909", "joao@email.com", Nascimento, Cadastro);
 
-        Assert.NotEqual(Guid.Empty, cliente.Id);
-        Assert.Equal(nome, cliente.Nome);
-        Assert.Equal(cpf, cliente.Cpf);
-        Assert.Equal(email, cliente.Email);
-        Assert.Equal(dataNascimento, cliente.DataNascimento);
+        // Assert
+        Assert.Equal(id, cliente.Id);
+        Assert.Equal("João da Silva", cliente.Nome);
+        Assert.Equal("12345678909", cliente.Cpf);
+        Assert.Equal("joao@email.com", cliente.Email);
+        Assert.Equal(Nascimento, cliente.DataNascimento);
+        Assert.Equal(Cadastro, cliente.DataCadastro);
+    }
+
+    [Fact]
+    public void DeveRecusarIdVazio()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => Criar(id: Guid.Empty));
+
+        Assert.Equal("id", ex.ParamName);
     }
 
     [Theory]
@@ -27,9 +40,7 @@ public class ClienteTests
     [InlineData("João da Silva", "12345678909", "", "email")]
     public void DeveRecusarCamposObrigatorios(string nome, string cpf, string email, string campo)
     {
-        // Arrange, Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() =>
-            new Cliente(nome, cpf, email, new DateTime(1995, 5, 10)));
+        var ex = Assert.Throws<ArgumentException>(() => Criar(nome: nome, cpf: cpf, email: email));
 
         Assert.Equal(campo, ex.ParamName);
     }
@@ -40,24 +51,10 @@ public class ClienteTests
     [InlineData("123456789")]    // menos de 11 dígitos
     public void DeveRecusarCpfInvalido(string cpf)
     {
-        // Arrange, Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => CriarCom(cpf));
+        var ex = Assert.Throws<ArgumentException>(() => Criar(cpf: cpf));
 
         Assert.Equal("cpf", ex.ParamName);
         Assert.StartsWith("CPF inválido.", ex.Message);
-    }
-
-    [Fact]
-    public void DeveArmazenarCpfSomenteComDigitos()
-    {
-        // Arrange
-        var cpfFormatado = "123.456.789-09";
-
-        // Act
-        var cliente = CriarCom(cpfFormatado);
-
-        // Assert
-        Assert.Equal("12345678909", cliente.Cpf);
     }
 
     [Theory]
@@ -66,14 +63,25 @@ public class ClienteTests
     [InlineData("joao@localhost")]
     public void DeveRecusarEmailInvalido(string email)
     {
-        // Arrange, Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() =>
-            new Cliente("João da Silva", "12345678909", email, new DateTime(1995, 5, 10)));
+        var ex = Assert.Throws<ArgumentException>(() => Criar(email: email));
 
         Assert.Equal("email", ex.ParamName);
         Assert.StartsWith("E-mail inválido.", ex.Message);
     }
 
-    private static Cliente CriarCom(string cpf) =>
-        new("João da Silva", cpf, "joao@email.com", new DateTime(1995, 5, 10));
+    [Fact]
+    public void DeveArmazenarCpfSomenteComDigitos()
+    {
+        var cliente = Criar(cpf: "123.456.789-09");
+
+        // Assert
+        Assert.Equal("12345678909", cliente.Cpf);
+    }
+
+    private static Cliente Criar(
+        Guid? id = null,
+        string nome = "João da Silva",
+        string cpf = "12345678909",
+        string email = "joao@email.com") =>
+        new(id ?? Guid.NewGuid(), nome, cpf, email, Nascimento, Cadastro);
 }
