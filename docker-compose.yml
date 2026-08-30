@@ -1,7 +1,8 @@
+name: parana-banco
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: clientes-sqlserver
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "Clientes@2026"
@@ -19,7 +20,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management
-    container_name: clientes-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
