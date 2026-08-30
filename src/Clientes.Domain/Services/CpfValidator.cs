@@ -12,7 +12,6 @@ public static class CpfValidator
         if (cpf.Length != 11)
             return false;
 
-        // Rejeita CPFs com todos os dígitos iguais (ex: 111.111.111-11).
         // Passam no cálculo, mas não existem na Receita Federal.
         if (cpf.Distinct().Count() == 1)
             return false;

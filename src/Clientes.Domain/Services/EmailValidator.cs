@@ -14,13 +14,11 @@ public static class EmailValidator
         if (!MailAddress.TryCreate(email, out var endereco))
             return false;
 
-        // TryCreate também aceita o formato "João <joao@email.com>".
-        // Num cadastro queremos apenas o endereço puro.
+        // TryCreate aceita "João <joao@email.com>"; queremos só o endereço.
         if (endereco.Address != email)
             return false;
 
-        // Exige domínio com ponto: rejeita "joao@localhost", que é
-        // sintaticamente válido mas não serve para um cliente real.
+        // Rejeita "joao@localhost": válido pela RFC, inútil como cliente.
         var dominio = endereco.Host;
 
         return dominio.Contains('.')

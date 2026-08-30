@@ -3,10 +3,6 @@ using Clientes.Domain.Entities;
 
 namespace Clientes.UnitTests.Fakes;
 
-/// <summary>
-/// Repositório em memória. Existe para provar o caso de uso sem SQL Server,
-/// que é justamente o motivo de IClienteRepository ser uma interface.
-/// </summary>
 public sealed class ClienteRepositoryFake : IClienteRepository
 {
     private readonly List<Cliente> _clientes = [];
