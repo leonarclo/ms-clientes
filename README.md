@@ -5,7 +5,48 @@ clientes e publica o evento `ClienteCadastrado` no RabbitMQ.
 
 Parte de uma solução de três microsserviços:
 
-    ms-clientes  ──ClienteCadastrado──►  ms-propostas  ──PropostaGerada──►  ms-cartoes
+```mermaid
+flowchart LR
+    U([Cliente HTTP])
+
+    subgraph C[ms-clientes]
+        CA["POST /api/v1/clientes<br/>GET /api/v1/clientes/{id}"]
+        CD[("clientes_db")]
+    end
+
+    subgraph MQ[RabbitMQ]
+        E1{{"Contracts.Events:<br/>ClienteCadastrado"}}
+        Q1[["cliente-cadastrado"]]
+        E2{{"Contracts.Events:<br/>PropostaGerada"}}
+        Q2[["proposta-gerada"]]
+    end
+
+    subgraph P[ms-propostas]
+        PC["ClienteCadastradoConsumer<br/>calcula score, aplica faixas"]
+        PA["GET /api/v1/propostas/{clienteId}"]
+        PD[("propostas_db")]
+    end
+
+    subgraph K[ms-cartoes]
+        KC["PropostaGeradaConsumer<br/>emite N cartões"]
+        KA["GET /api/v1/cartoes/{clienteId}"]
+        KD[("cartoes_db")]
+    end
+
+    U -->|HTTP| CA
+    CA --> CD
+    CA -->|publica| E1
+    E1 --> Q1 --> PC
+    PC --> PD
+    PC -->|publica| E2
+    E2 --> Q2 --> KC
+    KC --> KD
+    PA --- PD
+    KA --- KD
+```
+
+Cada microsserviço é dono do seu banco. Nenhum serviço consulta a base de outro: toda
+comunicação entre eles passa pelo RabbitMQ.
 
 - [ms-clientes](https://github.com/leonarclo/ms-clientes) (este repositório)
 - [ms-propostas](https://github.com/leonarclo/ms-propostas)
